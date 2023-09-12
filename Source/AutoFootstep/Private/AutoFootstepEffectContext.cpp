@@ -37,3 +37,19 @@ void UAutoFootstepEffectContext::PlayEffectBySurfaceType(const UObject* WorldCon
 		}
 	}
 }
+
+#if WITH_EDITOR
+void UAutoFootstepEffectContext::AddAllSurfaceTypeElements()
+{
+	for (int32 SurfaceType = 0; SurfaceType < SurfaceType_Max; ++SurfaceType)
+	{
+		if (!StaticEnum<EPhysicalSurface>()->HasMetaData(TEXT("Hidden"), SurfaceType))
+		{
+			if (!EffectsBySurfaceType.Contains(TEnumAsByte<EPhysicalSurface>(SurfaceType)))
+			{
+				EffectsBySurfaceType.Add(TEnumAsByte<EPhysicalSurface>(SurfaceType));
+			}
+		}
+	}
+}
+#endif

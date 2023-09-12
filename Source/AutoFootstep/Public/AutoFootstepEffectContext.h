@@ -73,6 +73,11 @@ public:
 		const FAutoFootstepNiagaraParams& NiagaraParams = FAutoFootstepNiagaraParams(),
 		const FAutoFootstepSoundParams& SoundParams = FAutoFootstepSoundParams());
 
+#if WITH_EDITOR
+	UFUNCTION(CallInEditor, Category = "AutoFootstep")
+	void AddAllSurfaceTypeElements();
+#endif
+
 private:
 	UPROPERTY(EditAnywhere, Category = "AutoFootstep")
 	TMap<TEnumAsByte<EPhysicalSurface>, FAutoFootstepEffect> EffectsBySurfaceType;
