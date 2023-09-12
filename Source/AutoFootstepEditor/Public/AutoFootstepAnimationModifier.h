@@ -13,12 +13,10 @@ class UAutoFootstepAnimationModifier : public UAnimationModifier
 	GENERATED_BODY()
 
 public:
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-
 	virtual void OnApply_Implementation(UAnimSequence* AnimationSequence) override;
 	virtual void OnRevert_Implementation(UAnimSequence* AnimationSequence) override;
+
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "AutoFootstep")
@@ -26,6 +24,14 @@ protected:
 	virtual void OnNotifyAdded_Implementation(UObject* AnimNotify, const FName& FootBoneName);
 
 private:
+	bool ContainsPathFilter(const UAnimSequence* AnimationSequence);
+	void ClearDirtyFlag(UObject* Object, UAnimSequence* AnimationSequence);
+
+	UPROPERTY(EditAnywhere, Category = "AutoFootstep")
+	TArray<FString> PathFilters;
+
+	FDelegateHandle ClearDirtyFlagHandle;
+
 	static inline const FName NAME_foot_l = TEXT("foot_l");
 	static inline const FName NAME_foot_r = TEXT("foot_r");
 
@@ -36,7 +42,7 @@ private:
 	bool bAddNotify = true;
 
 	UPROPERTY(EditAnywhere, Category = "AutoFootstep|Notify", meta = (EditCondition = "bAddNotify"))
-	TSubclassOf<UAnimNotify> NotifyClass = UAutoFootstepAnimNotify::StaticClass();;
+	TSubclassOf<UAnimNotify> NotifyClass = UAutoFootstepAnimNotify::StaticClass();
 
 	UPROPERTY()
 	bool bShowNotifyParams = true;

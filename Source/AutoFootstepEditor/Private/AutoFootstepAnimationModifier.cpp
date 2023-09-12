@@ -4,38 +4,18 @@
 #include "Animation/AnimSequence.h"
 #include "AnimPose.h"
 
-#if WITH_EDITOR
-void UAutoFootstepAnimationModifier::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	if (PropertyChangedEvent.GetMemberPropertyName() == GET_MEMBER_NAME_CHECKED(UAutoFootstepAnimationModifier, FootBoneNames))
-	{
-		TMap<FName, FName> NewMarkerNames;
-
-		for (const FName& FootBoneName : FootBoneNames)
-		{
-			FName MarkerName = MarkerNamesByBone.FindRef(FootBoneName);
-
-			if (MarkerName.IsNone())
-			{
-				MarkerName = FootBoneName;
-			}
-
-			NewMarkerNames.Emplace(FootBoneName, MarkerName);
-		}
-
-		MarkerNamesByBone = NewMarkerNames;
-	}
-	else if (PropertyChangedEvent.GetMemberPropertyName() == GET_MEMBER_NAME_CHECKED(UAutoFootstepAnimationModifier, NotifyClass))
-	{
-		bShowNotifyParams = NotifyClass && NotifyClass->IsChildOf(UAutoFootstepAnimNotify::StaticClass());
-	}
-}
-#endif
-
 void UAutoFootstepAnimationModifier::OnApply_Implementation(UAnimSequence* AnimationSequence)
 {
+	if (!ContainsPathFilter(AnimationSequence))
+	{
+		if (!AnimationSequence->GetPackage()->IsDirty())
+		{
+			ClearDirtyFlagHandle = FCoreUObjectDelegates::OnObjectModified.AddUObject(this, &UAutoFootstepAnimationModifier::ClearDirtyFlag, AnimationSequence);
+		}
+
+		return;
+	}
+
 	if (bAddNotify && !UAnimationBlueprintLibrary::IsValidAnimNotifyTrackName(AnimationSequence, NotifyTrackName))
 	{
 		UAnimationBlueprintLibrary::AddAnimationNotifyTrack(AnimationSequence, NotifyTrackName);
@@ -224,10 +204,65 @@ void UAutoFootstepAnimationModifier::OnRevert_Implementation(UAnimSequence* Anim
 	}
 }
 
+void UAutoFootstepAnimationModifier::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (PropertyChangedEvent.GetMemberPropertyName() == GET_MEMBER_NAME_CHECKED(UAutoFootstepAnimationModifier, FootBoneNames))
+	{
+		TMap<FName, FName> NewMarkerNames;
+
+		for (const FName& FootBoneName : FootBoneNames)
+		{
+			FName MarkerName = MarkerNamesByBone.FindRef(FootBoneName);
+
+			if (MarkerName.IsNone())
+			{
+				MarkerName = FootBoneName;
+			}
+
+			NewMarkerNames.Emplace(FootBoneName, MarkerName);
+		}
+
+		MarkerNamesByBone = NewMarkerNames;
+	}
+	else if (PropertyChangedEvent.GetMemberPropertyName() == GET_MEMBER_NAME_CHECKED(UAutoFootstepAnimationModifier, NotifyClass))
+	{
+		bShowNotifyParams = NotifyClass && NotifyClass->IsChildOf(UAutoFootstepAnimNotify::StaticClass());
+	}
+}
+
 void UAutoFootstepAnimationModifier::OnNotifyAdded_Implementation(UObject* AnimNotify, const FName& FootBoneName)
 {
 	if (UAutoFootstepAnimNotify* AutoFootstepAnimNotify = Cast<UAutoFootstepAnimNotify>(AnimNotify))
 	{
 		AutoFootstepAnimNotify->Init(FootBoneName, NotifyParams);
+	}
+}
+
+bool UAutoFootstepAnimationModifier::ContainsPathFilter(const UAnimSequence* AnimationSequence)
+{
+	if (PathFilters.IsEmpty())
+	{
+		return true;
+	}
+
+	for (const FString& PathFilter : PathFilters)
+	{
+		if (AnimationSequence->GetPathName().Contains(PathFilter))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void UAutoFootstepAnimationModifier::ClearDirtyFlag(UObject* Object, UAnimSequence* AnimationSequence)
+{
+	if (Object == AnimationSequence)
+	{
+		AnimationSequence->GetPackage()->SetDirtyFlag(false);
+		FCoreUObjectDelegates::OnObjectModified.Remove(ClearDirtyFlagHandle);
 	}
 }
