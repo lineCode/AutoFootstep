@@ -6,9 +6,9 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundBase.h"
 
-void UAutoFootstepEffectContext::SpawnEffectBySurfaceType(const UObject* WorldContextObject, const TEnumAsByte<EPhysicalSurface> SurfaceType, const FVector& Location, const FRotator& Rotation, const FAutoFootstepNiagaraParams& NiagaraParams, const FAutoFootstepSoundParams& SoundParams)
+void UAutoFootstepEffectContext::PlayEffectBySurfaceType(const UObject* WorldContextObject, const TEnumAsByte<EPhysicalSurface> SurfaceType, const FVector& Location, const FRotator& Rotation, const FAutoFootstepNiagaraParams& NiagaraParams, const FAutoFootstepSoundParams& SoundParams)
 {
-	if (const FAutoFootstepEffect* Effect = EffectsForSurface.Find(SurfaceType))
+	if (const FAutoFootstepEffect* Effect = EffectsBySurfaceType.Find(SurfaceType))
 	{
 		TArray<FSoftObjectPath> EffectPaths;
 

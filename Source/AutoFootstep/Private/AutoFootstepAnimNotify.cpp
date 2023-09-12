@@ -64,7 +64,7 @@ void UAutoFootstepAnimNotify::OnTraceCompleted(const FTraceHandle& TraceHandle, 
 	const FVector& Location = HitResult.Location;
 	const FRotator& Rotation = MeshComp->GetComponentRotation() + FRotator(0.0f, 90.0f, 0.0f);
 
-	NotifyParams.EffectContext->SpawnEffectBySurfaceType(MeshComp, SurfaceType, Location, Rotation, NotifyParams.NiagaraParams, NotifyParams.SoundParams);
+	NotifyParams.EffectContext->PlayEffectBySurfaceType(MeshComp, SurfaceType, Location, Rotation, NotifyParams.NiagaraParams, NotifyParams.SoundParams);
 
 	if (NotifyParams.NoiseParams.bReportNoise)
 	{

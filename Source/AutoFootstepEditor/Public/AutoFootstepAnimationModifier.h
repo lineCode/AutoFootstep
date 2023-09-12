@@ -62,7 +62,7 @@ private:
 	static inline const FName NAME_R = TEXT("R");
 
 	UPROPERTY(EditAnywhere, EditFixedSize, Category = "AutoFootstep|Sync Marker", meta = (EditCondition = "bAddSyncMarker", ReadOnlyKeys))
-	TMap<FName, FName> MarkerNamesByBone = { { NAME_foot_l, NAME_L }, { NAME_foot_r, NAME_R } };
+	TMap<FName, FName> MarkerNamesByFootBone = { { NAME_foot_l, NAME_L }, { NAME_foot_r, NAME_R } };
 
 	static inline const FName NAME_AutoFootstep_SyncMarker = TEXT("AutoFootstep_SyncMarker");
 

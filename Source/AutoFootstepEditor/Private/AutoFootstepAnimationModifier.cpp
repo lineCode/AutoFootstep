@@ -155,7 +155,7 @@ void UAutoFootstepAnimationModifier::OnApply_Implementation(UAnimSequence* Anima
 
 			if (bAddSyncMarker)
 			{
-				const FName MarkerName = MarkerNamesByBone.FindRef(FootBoneName);
+				const FName MarkerName = MarkerNamesByFootBone.FindRef(FootBoneName);
 				UAnimationBlueprintLibrary::AddAnimationSyncMarker(AnimationSequence, MarkerName, Time, MarkerTrackName);
 			}
 		}
@@ -183,7 +183,7 @@ void UAutoFootstepAnimationModifier::OnRevert_Implementation(UAnimSequence* Anim
 	{
 		for (const FName& FootBoneName : FootBoneNames)
 		{
-			UAnimationBlueprintLibrary::RemoveAnimationSyncMarkersByName(AnimationSequence, MarkerNamesByBone[FootBoneName]);
+			UAnimationBlueprintLibrary::RemoveAnimationSyncMarkersByName(AnimationSequence, MarkerNamesByFootBone[FootBoneName]);
 		}
 
 		if (UAnimationBlueprintLibrary::IsValidAnimNotifyTrackName(AnimationSequence, MarkerTrackName))
@@ -214,7 +214,7 @@ void UAutoFootstepAnimationModifier::PostEditChangeProperty(struct FPropertyChan
 
 		for (const FName& FootBoneName : FootBoneNames)
 		{
-			FName MarkerName = MarkerNamesByBone.FindRef(FootBoneName);
+			FName MarkerName = MarkerNamesByFootBone.FindRef(FootBoneName);
 
 			if (MarkerName.IsNone())
 			{
@@ -224,7 +224,7 @@ void UAutoFootstepAnimationModifier::PostEditChangeProperty(struct FPropertyChan
 			NewMarkerNames.Emplace(FootBoneName, MarkerName);
 		}
 
-		MarkerNamesByBone = NewMarkerNames;
+		MarkerNamesByFootBone = NewMarkerNames;
 	}
 	else if (PropertyChangedEvent.GetMemberPropertyName() == GET_MEMBER_NAME_CHECKED(UAutoFootstepAnimationModifier, NotifyClass))
 	{

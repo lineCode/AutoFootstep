@@ -65,7 +65,7 @@ class AUTOFOOTSTEP_API UAutoFootstepEffectContext : public UPrimaryDataAsset
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "AutoFootstep", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "NiagaraParams, SoundParams", AdvancedDisplay = 4))
-	void SpawnEffectBySurfaceType(
+	void PlayEffectBySurfaceType(
 		const UObject* WorldContextObject,
 		const TEnumAsByte<EPhysicalSurface> SurfaceType,
 		const FVector& Location,
@@ -75,5 +75,5 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "AutoFootstep")
-	TMap<TEnumAsByte<EPhysicalSurface>, FAutoFootstepEffect> EffectsForSurface;
+	TMap<TEnumAsByte<EPhysicalSurface>, FAutoFootstepEffect> EffectsBySurfaceType;
 };
