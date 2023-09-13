@@ -26,15 +26,14 @@ void UAutoFootstepEffectContext::PlayEffectBySurfaceType(const UObject* WorldCon
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContextObject, Effect->Niagara.Get(), Location + NiagaraParams.LocationOffset, Rotation + NiagaraParams.RotationOffset, NiagaraParams.Scale, true, true, NiagaraParams.PoolingMethod);
 			UGameplayStatics::PlaySoundAtLocation(WorldContextObject, Effect->Sound.Get(), Location + SoundParams.LocationOffset, Rotation + SoundParams.RotationOffset, SoundParams.VolumeMultiplier, SoundParams.PitchMultiplier);
+			return;
 		}
-		else
+
+		UAssetManager::GetStreamableManager().RequestAsyncLoad(EffectPaths, [WorldContextObject, Effect, Location, Rotation, NiagaraParams, SoundParams]()
 		{
-			UAssetManager::GetStreamableManager().RequestAsyncLoad(EffectPaths, [WorldContextObject, Effect, Location, Rotation, NiagaraParams, SoundParams]()
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContextObject, Effect->Niagara.Get(), Location + NiagaraParams.LocationOffset, Rotation + NiagaraParams.RotationOffset, NiagaraParams.Scale, true, true, NiagaraParams.PoolingMethod);
-				UGameplayStatics::PlaySoundAtLocation(WorldContextObject, Effect->Sound.Get(), Location + SoundParams.LocationOffset, Rotation + SoundParams.RotationOffset, SoundParams.VolumeMultiplier, SoundParams.PitchMultiplier);
-			});
-		}
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContextObject, Effect->Niagara.Get(), Location + NiagaraParams.LocationOffset, Rotation + NiagaraParams.RotationOffset, NiagaraParams.Scale, true, true, NiagaraParams.PoolingMethod);
+			UGameplayStatics::PlaySoundAtLocation(WorldContextObject, Effect->Sound.Get(), Location + SoundParams.LocationOffset, Rotation + SoundParams.RotationOffset, SoundParams.VolumeMultiplier, SoundParams.PitchMultiplier);
+		});
 	}
 }
 
@@ -43,13 +42,17 @@ void UAutoFootstepEffectContext::AddAllSurfaceTypeElements()
 {
 	for (int32 SurfaceType = 0; SurfaceType < SurfaceType_Max; ++SurfaceType)
 	{
-		if (!StaticEnum<EPhysicalSurface>()->HasMetaData(TEXT("Hidden"), SurfaceType))
+		if (StaticEnum<EPhysicalSurface>()->HasMetaData(TEXT("Hidden"), SurfaceType))
 		{
-			if (!EffectsBySurfaceType.Contains(TEnumAsByte<EPhysicalSurface>(SurfaceType)))
-			{
-				EffectsBySurfaceType.Add(TEnumAsByte<EPhysicalSurface>(SurfaceType));
-			}
+			continue;
 		}
+
+		if (EffectsBySurfaceType.Contains(TEnumAsByte<EPhysicalSurface>(SurfaceType)))
+		{
+			continue;
+		}
+
+		EffectsBySurfaceType.Add(TEnumAsByte<EPhysicalSurface>(SurfaceType));
 	}
 }
 #endif
